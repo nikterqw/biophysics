@@ -1,0 +1,76 @@
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
+from matplotlib.animation import PillowWriter
+
+# Параметры модели
+radius = 1 # Радиус орбиты электрона
+electron_radius = 0.1 # Радиус электрона
+nucleus_radius = 0.2 # Радиус ядра
+speed = 2.0 # Скорость электрона
+
+# Создание фигуры и осей
+fig, ax = plt.subplots()
+ax.set_xlim(-4, 4) # Увеличиваем пределы для синусоиды
+ax.set_ylim(-4, 4) # Увеличиваем пределы для синусоиды
+ax.set_aspect('equal')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.grid(True)
+
+# Создание элементов модели
+nucleus = plt.Circle((0, 0), nucleus_radius, color='red', zorder=10)
+electron = plt.Circle((radius, 0), electron_radius, color='blue', zorder=10)
+plus_sign = ax.text(0, 0, '+', fontsize=20, color='red', ha='center', va='center', zorder=11)
+
+# Добавление элементов на график
+ax.add_patch(nucleus)
+ax.add_patch(electron)
+
+# Список для хранения линий синусоиды
+sin_lines = []
+
+# Функция для обновления положения электрона и добавления синусоиды
+def animate(i):
+  global radius # Объявляем radius как глобальную переменную
+  angle = i * speed * 2 * np.pi / 100
+
+  # Изменение цвета электрона
+  if i % 200 == 0:
+    electron.set_color('yellow')
+  elif i % 200 == 100:
+    electron.set_color('blue')
+
+  # Изменение радиуса орбиты
+  if i % 200 == 150:
+    radius = 3
+  elif i % 200 == 250:
+    radius = 1
+
+  # Обновление позиции электрона
+  electron.center = (radius * np.cos(angle), radius * np.sin(angle))
+
+  # Добавление синусоиды
+  if i % 200 == 300:
+    x = np.linspace(electron.center[0], electron.center[0] + 2, 100)
+    y = np.sin(x)
+    line, = ax.plot(x, y, color='blue', zorder=5)
+    sin_lines.append(line)
+
+  # Удаление предыдущих синусоид
+  if i % 200 == 400:
+    for line in sin_lines:
+      line.remove()
+    sin_lines.clear()
+
+  return nucleus, electron, plus_sign 
+  # + tuple(sin_lines) # Возвращаем все элементы
+
+# Анимация
+ani = animation.FuncAnimation(fig, animate, frames=500, interval=20, blit=True)
+
+# Сохранение анимации в формате GIF
+writer = PillowWriter(fps=25)
+ani.save("atom_animation.gif", writer=writer)
+
+plt.close() # Закрыть график, так как он больше не нужен
