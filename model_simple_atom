@@ -1,0 +1,48 @@
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.animation import PillowWriter
+
+# Параметры модели
+radii = [1, 1.5, 2] # Радиусы орбит
+electron_radius = 1.1 # Радиус электрона
+nucleus_radius = 2.2 # Радиус ядра
+speeds = [1.1, 2.2, 3.3] # Скорости вращения
+
+# Создание фигуры и осей
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.set_xlim(-2.5, 2.5)
+ax.set_ylim(-2.5, 2.5)
+ax.set_zlim(-2.5, 2.5)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.grid(True)
+
+# Создание элементов модели
+nucleus = plt.plot([0], [0], [0], marker='o', markersize=nucleus_radius * 10, color='red')[0]
+electrons = []
+for i, radius in enumerate(radii):
+ electron = plt.plot([radius], [0], [0], marker='o', markersize=electron_radius * 10, color='blue')[0]
+ electrons.append(electron)
+
+# Функция для обновления положения электронов
+def animate(i):
+ for j, electron in enumerate(electrons):
+  angle = i * speeds[j] * 2 * np.pi / 100
+  x = radii[j] * np.cos(angle)
+  y = radii[j] * np.sin(angle)
+  electron.set_data(x, y)
+  electron.set_3d_properties(0) # Установка Z-координаты для 3D
+ return electrons
+
+# Анимация
+ani = animation.FuncAnimation(fig, animate, frames=100, interval=20, blit=True)
+
+# Сохранение анимации в формате GIF
+writer = PillowWriter(fps=25)
+ani.save("atom_animation_3d.gif", writer=writer)
+
+plt.close() # Закрыть график
