@@ -1,0 +1,43 @@
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
+from matplotlib.animation import PillowWriter
+
+# Параметры модели
+radius = 1 # Радиус орбиты электрона
+electron_radius = 0.1 # Радиус электрона
+nucleus_radius = 0.2 # Радиус ядра
+speed = 2.0 # Скорость электрона
+
+# Создание фигуры и осей
+fig, ax = plt.subplots()
+ax.set_xlim(-1.5, 1.5)
+ax.set_ylim(-1.5, 1.5)
+ax.set_aspect('equal')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.grid(True)
+
+# Создание элементов модели
+nucleus = plt.Circle((0, 0), nucleus_radius, color='red', zorder=10)
+electron = plt.Circle((radius, 0), electron_radius, color='blue', zorder=10)
+plus_sign = ax.text(0, 0, '+', fontsize=20, color='red', ha='center', va='center', zorder=11)
+
+# Добавление элементов на график
+ax.add_patch(nucleus)
+ax.add_patch(electron)
+
+# Функция для обновления положения электрона
+def animate(i):
+ angle = i * speed *2 * np.pi / 100
+ electron.center = (radius * np.cos(angle), radius * np.sin(angle))
+ return nucleus, electron, plus_sign # Возвращаем список всех элементов
+
+# Анимация
+ani = animation.FuncAnimation(fig, animate, frames=100, interval=20, blit=True)
+
+# Сохранение анимации в формате GIF
+writer = PillowWriter(fps=25)
+ani.save("atom_animation.gif", writer=writer)
+
+plt.close() # Закрыть график, так как он больше не нужен
