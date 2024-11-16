@@ -1,0 +1,53 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from IPython.display import HTML
+
+# Параметры синусоид
+num_points = 100
+period = 2 * np.pi
+amplitude = 1
+interval = 50 # 0.5 секунды
+
+# Массивы координат
+x = np.linspace(0, period, num_points)
+y = amplitude * np.sin(x)
+z = amplitude * np.sin(x)
+
+# Создаем фигуру и оси
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+ax.set_xlim([0, period * 2]) # Увеличение длины по оси x
+ax.set_ylim([-amplitude, amplitude])
+ax.set_zlim([-amplitude, amplitude])
+
+# Линии для отрисовки
+points_xy, = ax.plot([], [], [], 'o', markersize=4, label='XY-plane') # Добавлена метка
+points_xz, = ax.plot([], [], [], 'o', markersize=4, color='g', label='XZ-plane') # Добавлена метка и цвет
+
+# Функция для обновления кадра
+def animate(i):
+ # Количество точек для отображения
+ num_displayed = i + 1
+
+ points_xy.set_data(x[:num_displayed], y[:num_displayed])
+ points_xy.set_3d_properties(np.zeros(num_displayed)) # y-координата для XY плоскости
+
+ points_xz.set_data(x[:num_displayed], np.zeros(num_displayed)) # x-координата для XZ плоскости
+ points_xz.set_3d_properties(z[:num_displayed])
+
+ return points_xy, points_xz
+
+
+# Анимация
+anim = animation.FuncAnimation(fig, animate, frames=num_points, interval=interval, blit=True)
+
+# Сохранение в GIF
+anim.save('3d_sinusoids_corrected_extended.gif', writer='pillow')
+
+# Отображение анимации (для Jupyter Notebook/Google Colab)
+plt.legend() # Добавили легенду
+plt.close()
